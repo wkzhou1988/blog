@@ -42,8 +42,8 @@ comment:
   livere:
     uid: # enter youyan uid
   gitalk: # gitalk. https://gitalk.github.io/
-    owner: fengkx #必须. GitHub repository 所有者，可以是个人或者组织。
-    admin: fengkx #必须. GitHub repository 的所有者和合作者 (对这个 repository 有写权限的用户)。
+    owner:  wkzhou1988 #必须. GitHub repository 所有者，可以是个人或者组织。
+    admin: wkzhou1988 #必须. GitHub repository 的所有者和合作者 (对这个 repository 有写权限的用户)。
     repo: blog-comment #必须. GitHub repository.
     ClientID:  #必须. GitHub Application Client ID.
     ClientSecret:  #必须. GitHub Application Client `ecret.
@@ -60,12 +60,12 @@ comment:
 
 
 github:
-  username: fengkx
+  username: wkzhou1988
 
 # wordcount
 postCount:
   enable: true
-  wordcount: true  # 文章字数统计
+  # wordcount: true  # 文章字数统计
   min2read: true  # 阅读时长预计
 
 search: true # enable local search
@@ -78,36 +78,33 @@ footer:
 profile:
   enabled: true # Whether to show profile bar
 #  avatar: images/avatar.jpg
-  gravatar: MyEmailAddress@example.com # Gravatar email address, if you enable Gravatar, your avatar config will be overriden
-  author: fengkx
-  author_title: Student & Coder
+  gravatar: wkzhou.1988@gmail.com # Gravatar email address, if you enable Gravatar, your avatar config will be overriden
+  author: Wenkan
+  author_title: Mobile Game Developer
   author_description: Having fun
-  location: Guangzhou, China
-  follow: https://github.com/fengkx
+  location: Beijing, China
+  follow: #https://github.com/fengkx
   # Social Links
   social:
     links:
-      github: https://github.com/fengkx
-      telegram: https://t.me/fengkx
-      twitter: https://twitter.com/example
+      github: https://github.com/wkzhou1988
+      telegram: # https://t.me/fengkx
+      twitter: # https://twitter.com/example
       # facebook: /
       # dribbble: /
 #      behance: https://www.behance.net/cofess
       rss: atom.xml
     link_tooltip: true # enable the social link tooltip, options: true, false
 
-  # My Personal Links
-  links:
-    Github: https://github.com/fengkx
-    Blog: http://www.fengkx.top
-    Email: i#fengkx.top(请将#替换成@)
-    Wechat: liang222liang
+  # # My Personal Links
+  # links:
+  #   Github: https://github.com/fengkx
+  #   Blog: http://www.fengkx.top
+  #   Email: i#fengkx.top(请将#替换成@)
+  #   Wechat: liang222liang
   # My Personal Labels
   labels:
-    - 前端
-    - Node.js
-    - Golang
-    - Linux日常使用
+    - Unity
   skills:
     Git: ★★★☆☆
     Gulp: ★★★☆☆
