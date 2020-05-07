@@ -37,7 +37,7 @@ $ hexo deploy
 
 More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
 
-```c#
+```csharp
 public class Solution {
     bool compare(TreeNode s, TreeNode t)
     {
@@ -64,5 +64,3 @@ public class Solution {
     }
 }
 ```
-
-[baidu](www.baidu.com)
