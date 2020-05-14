@@ -1,7 +1,7 @@
 ---
-title: Valid String Combination
+title: 算法面试：检查一个字符串是否是另外两个字符串的组合
 date: 2020-05-14 10:10:49
-tags: 算法 C#
+tags: 算法, C#
 ---
 
 最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。
