@@ -17,23 +17,20 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>AssetBundle.LoadAsset的一些小细节 | Hexo</title>
-  <meta name="description" content="反复调用LoadAsset会产生什么结果？之所以这么问是因为我们知道同一个AssetBundle是不允许重复加载的。那么里面的资源是怎么样的呢？如果可以反复加载，那么有什么细节需要注意呢？写一段代码来测试一下吧。 我们应该关注以下两点：  两次加载出来的对象是否是同一个对象  两次加载的时间是否一样   12345678910111213141516171819202122232425262728">
+  <title>Hello World dsfsdafsdfdsa | Hexo</title>
+  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
 <meta property="og:type" content="article">
-<meta property="og:title" content="AssetBundle.LoadAsset的一些小细节">
-<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/index.html">
+<meta property="og:title" content="Hello World dsfsdafsdfdsa">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/05/14/hello-world/index.html">
 <meta property="og:site_name" content="关于开发">
-<meta property="og:description" content="反复调用LoadAsset会产生什么结果？之所以这么问是因为我们知道同一个AssetBundle是不允许重复加载的。那么里面的资源是怎么样的呢？如果可以反复加载，那么有什么细节需要注意呢？写一段代码来测试一下吧。 我们应该关注以下两点：  两次加载出来的对象是否是同一个对象  两次加载的时间是否一样   12345678910111213141516171819202122232425262728">
+<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/log_output.png">
-<meta property="article:published_time" content="2020-05-08T16:38:52.000Z">
+<meta property="article:published_time" content="2020-05-14T02:47:49.223Z">
 <meta property="article:modified_time" content="2020-05-14T02:47:49.223Z">
 <meta property="article:author" content="Wenkan">
-<meta property="article:tag" content="Unity">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/log_output.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/index.html">
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/05/14/hello-world/index.html">
   
     <link rel="alternate" href="/atom.xml" title="关于开发" type="application/atom+xml">
   
@@ -313,14 +310,14 @@
   
 <main class="main" role="main">
   <div class="content">
-  <article id="post-load-the-same-asset-twice" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-hello-world" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      AssetBundle.LoadAsset的一些小细节
+      Hello World dsfsdafsdfdsa
     </h1>
   
 
@@ -328,39 +325,35 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/blog/2020/05/08/load-the-same-asset-twice/" class="article-date">
-	  <time datetime="2020-05-08T16:38:52.000Z" itemprop="datePublished">2020-05-08</time>
+	<a href="/blog/2020/05/14/hello-world/" class="article-date">
+	  <time datetime="2020-05-14T02:47:49.223Z" itemprop="datePublished">2020-05-14</time>
 	</a>
 </span>
         
         
-  <span class="article-tag">
-    <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/blog/tags/Unity/" rel="tag">Unity</a>
-  </span>
-
 
         
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/05/08/load-the-same-asset-twice/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/05/14/hello-world/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h4 id="反复调用LoadAsset会产生什么结果？"><a href="#反复调用LoadAsset会产生什么结果？" class="headerlink" title="反复调用LoadAsset会产生什么结果？"></a>反复调用LoadAsset会产生什么结果？</h4><p>之所以这么问是因为我们知道同一个AssetBundle是不允许重复加载的。那么里面的资源是怎么样的呢？如果可以反复加载，那么有什么细节需要注意呢？写一段代码来测试一下吧。</p>
-<p>我们应该关注以下两点：</p>
-<ol>
-<li><p>两次加载出来的对象是否是同一个对象</p>
-</li>
-<li><p>两次加载的时间是否一样</p>
-</li>
-</ol>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Diagnostics;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span> : <span class="title">MonoBehaviour</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">Start</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> assetPath = <span class="string">"Assets/Resource/Prefabs/TestPrefab.prefab"</span>;</span><br><span class="line">        <span class="keyword">var</span> dict = <span class="keyword">new</span> Dictionary&lt;<span class="keyword">string</span>, UnityEngine.Object&gt;();</span><br><span class="line">        <span class="keyword">var</span> ab = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, <span class="string">"bundleprefab"</span>));</span><br><span class="line">        <span class="keyword">var</span> sw = <span class="keyword">new</span> Stopwatch();</span><br><span class="line">        sw.Start();</span><br><span class="line">        <span class="keyword">var</span> asset = ab.LoadAsset(assetPath);</span><br><span class="line">        sw.Stop();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">"First time: "</span> + sw.ElapsedTicks);</span><br><span class="line">        dict.Add(assetPath, asset);</span><br><span class="line">        sw.Restart();</span><br><span class="line">        <span class="keyword">var</span> asset2 = ab.LoadAsset(assetPath);</span><br><span class="line">        sw.Stop();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">"Second time: "</span> + sw.ElapsedTicks);</span><br><span class="line">        sw.Restart();</span><br><span class="line">        <span class="keyword">var</span> asset3 = dict[assetPath];</span><br><span class="line">        sw.Stop();</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">"Read from Dictionary: "</span> + sw.ElapsedTicks);</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">"asset == asset2: "</span> + (asset == asset2));</span><br><span class="line">        UnityEngine.Debug.Log(<span class="string">"asset2 == asset3: "</span> + (asset2 == asset3));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start-dsfasfds"><a href="#Quick-Start-dsfasfds" class="headerlink" title="Quick Start dsfasfds"></a>Quick Start dsfasfds</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
 
-<img src="/blog/2020/05/08/load-the-same-asset-twice/log_output.png" class="" title="打印结果">
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 
-<p>可以看到重复调用LoadAsset拿到的对象都是一样的，并且第二次调用的时间比第一次显著的低，接近于自己用Dictionary缓存起来。因此推断AssetBundle内部可能也有这样一个缓存机制。</p>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare</span>(<span class="params">TreeNode s, TreeNode t</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">if</span> (s == <span class="literal">null</span> &amp;&amp; t == <span class="literal">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!(s != <span class="literal">null</span> &amp;&amp; t != <span class="literal">null</span>))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (s.val == t.val &amp;&amp; compare(s.left, t.left) &amp;&amp; compare(s.right, t.right))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">IsSubtree</span>(<span class="params">TreeNode s, TreeNode t</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">if</span> (compare(s, t))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (s.left != <span class="literal">null</span> &amp;&amp; IsSubtree(s.left, t))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (s.right != <span class="literal">null</span> &amp;&amp; IsSubtree(s.right, t))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -370,7 +363,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/" title="AssetBundle.LoadAsset的一些小细节" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/05/08/load-the-same-asset-twice/</a>
+      <a href="http://wkzhou1988.github.io/blog/2020/05/14/hello-world/" title="Hello World dsfsdafsdfdsa" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/05/14/hello-world/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -417,9 +410,13 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/blog/2020/05/14/hello-world/" title="Hello World dsfsdafsdfdsa"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/blog/2020/05/14/Valid-String-Combination/" title="Valid String Combination"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
+    
+    <li class="next">
+      <a href="/blog/2020/05/08/load-the-same-asset-twice/" title="AssetBundle.LoadAsset的一些小细节"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
     
     
   </ul>
