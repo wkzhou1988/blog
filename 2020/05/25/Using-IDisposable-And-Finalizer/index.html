@@ -17,21 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>算法面试：检查一个字符串是否是另外两个字符串的组合 | Blog</title>
-  <meta name="description" content="最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。 题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1&#x3D;abc，str2&#x3D;def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有">
+  <title>C#中using, IDisposable, 析构函数的用法 | Blog</title>
+  <meta name="description" content="一直对C#的内存管理可以说是一知半解，今天特地研究了一下。 先说结论吧。对于使用了非托管资源的类，需要实现IDisposable，最好使用using语法来保证正确的释放。最好提供Finalize来保证即使Dispose没有调用也能最后释放资源。因此最好按照下面的模式来实现： 1234567891011121314151617181920212223242526272829303132333435u">
 <meta property="og:type" content="article">
-<meta property="og:title" content="算法面试：检查一个字符串是否是另外两个字符串的组合">
-<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/index.html">
+<meta property="og:title" content="C#中using, IDisposable, 析构函数的用法">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/05/25/Using-IDisposable-And-Finalizer/index.html">
 <meta property="og:site_name" content="一枚开发的笔记">
-<meta property="og:description" content="最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。 题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1&#x3D;abc，str2&#x3D;def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有">
+<meta property="og:description" content="一直对C#的内存管理可以说是一知半解，今天特地研究了一下。 先说结论吧。对于使用了非托管资源的类，需要实现IDisposable，最好使用using语法来保证正确的释放。最好提供Finalize来保证即使Dispose没有调用也能最后释放资源。因此最好按照下面的模式来实现： 1234567891011121314151617181920212223242526272829303132333435u">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-05-14T10:10:49.000Z">
+<meta property="article:published_time" content="2020-05-25T11:24:55.000Z">
 <meta property="article:modified_time" content="2020-05-25T04:50:17.932Z">
 <meta property="article:author" content="Wenkan">
-<meta property="article:tag" content="算法, C#">
+<meta property="article:tag" content="C#">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/index.html">
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/05/25/Using-IDisposable-And-Finalizer/index.html">
   
     <link rel="alternate" href="/atom.xml" title="一枚开发的笔记" type="application/atom+xml">
   
@@ -306,14 +306,14 @@
   
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Valid-String-Combination" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Using-IDisposable-And-Finalizer" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      算法面试：检查一个字符串是否是另外两个字符串的组合
+      C#中using, IDisposable, 析构函数的用法
     </h1>
   
 
@@ -321,35 +321,54 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/blog/2020/05/14/Valid-String-Combination/" class="article-date">
-	  <time datetime="2020-05-14T10:10:49.000Z" itemprop="datePublished">2020-05-14</time>
+	<a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/" class="article-date">
+	  <time datetime="2020-05-25T11:24:55.000Z" itemprop="datePublished">2020-05-25</time>
 	</a>
 </span>
         
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/blog/tags/%E7%AE%97%E6%B3%95-C/" rel="tag">算法, C#</a>
+	<a class="article-tag-link" href="/blog/tags/C/" rel="tag">C#</a>
   </span>
 
 
         
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/05/14/Valid-String-Combination/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。</p>
-<p>题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1=abc，str2=def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有点紧张，思考也不是很严谨。当时简单看了一眼题目底下的测试用例，我想了一两分钟就开始写了下面这个版本。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="keyword">string</span> str1, <span class="keyword">string</span> str2, <span class="keyword">string</span> anim</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (str1.Length + str2.Length != anim.Length) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (str1.Length == <span class="number">0</span>) <span class="keyword">return</span> str2 == anim;</span><br><span class="line">        <span class="keyword">if</span> (str2.Length == <span class="number">0</span>) <span class="keyword">return</span> str1 == anim;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> index1 = <span class="number">0</span>, index2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; anim.Length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (index1 &lt; str1.Length &amp;&amp; str1[index1] == anim[i]) &#123;</span><br><span class="line">                index1++;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (index2 &lt; str2.Length &amp;&amp; str2[index2] == anim[i]) &#123;</span><br><span class="line">                index2++;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>一直对C#的内存管理可以说是一知半解，今天特地研究了一下。</p>
+<p>先说结论吧。对于使用了非托管资源的类，需要实现IDisposable，最好使用using语法来保证正确的释放。最好提供Finalize来保证即使Dispose没有调用也能最后释放资源。因此最好按照下面的模式来实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">BaseClass</span> : <span class="title">IDisposable</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// To detect redundant calls</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">bool</span> _disposed = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    ~BaseClass() =&gt; Dispose(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Public implementation of Dispose pattern callable by consumers.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Dispose</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        Dispose(<span class="literal">true</span>);</span><br><span class="line">        GC.SuppressFinalize(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Protected implementation of Dispose pattern.</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Dispose</span>(<span class="params"><span class="keyword">bool</span> disposing</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_disposed)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (disposing)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> dispose managed state (managed objects).</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> free unmanaged resources (unmanaged objects) and override a finalizer below.</span></span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> set large fields to null.</span></span><br><span class="line"></span><br><span class="line">        _disposed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>可以看到上面的算法假定的是anim由str1，str2的全部字符组成（我不确定题目中有没有说了）。但是最大的问题是，算法中永远优先取str1。那么如果当前位置str1，str2相等，那么就会优先选str1。那这显然是不对的。比如ab，ac，acab这样的组合，第一位都是a，但是算法会从str1去取，然后到第二位判断的时候会认为必须是b或者a，然而现在是c，结果会认为这不是一个合理的答案。其实只要第一位从str2开始取就行了。</p>
-<p>那么看到这里就很明显了，如果str1，str2中有相同的字符，那么就有可能会遇到这个字符不知道是从str1还是str2来取。那么算法上，这就是典型的回溯了。知道了这一点，代码还是比较好写的，并没有太多难点。至于anim的长度会不会比str1+str2要短，这个其实很好解决。这里就不管了，假定<code>anim.Length==str1.Length+str2.Length</code>吧。回溯的思想就是一旦走不通就返回上次的地方，那对于这个题，需要回溯的就是str1和str2的index，即上次anim的字符是从哪个string里面的哪个index取过来的。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">string</span> str1;</span><br><span class="line">    <span class="keyword">string</span> str2;</span><br><span class="line">    <span class="keyword">string</span> anim;</span><br><span class="line">    <span class="keyword">int</span> index1;</span><br><span class="line">    <span class="keyword">int</span> index2;</span><br><span class="line">    <span class="keyword">bool</span> success;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Trackback</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (success) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (index1 + index2 == anim.Length) &#123;</span><br><span class="line">            success = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (index1 &lt; str1.Length &amp;&amp; anim[index1 + index2] == str1[index1]) &#123;</span><br><span class="line">                index1++;</span><br><span class="line">                Trackback();</span><br><span class="line">                index1--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (index2 &lt; str2.Length &amp;&amp; anim[index1 + index2] == str2[index2]) &#123;</span><br><span class="line">                index2++;</span><br><span class="line">                Trackback();</span><br><span class="line">                index2--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="keyword">string</span> str1, <span class="keyword">string</span> str2, <span class="keyword">string</span> anim</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.str1 = str1;</span><br><span class="line">        <span class="keyword">this</span>.str2 = str2;</span><br><span class="line">        <span class="keyword">this</span>.anim = anim;</span><br><span class="line">        Trackback();</span><br><span class="line">        <span class="keyword">return</span> success;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>结语：虽然算法现在写出来了，但是第一个方案显然不是太好。现在回想来看，面试的时候的大忌应该是拿到就写。实际上题目虽然有些东西没说清楚，但这正是面试官考察的东西。面试时我们还是应该不要想当然，要多去问题目的边界在哪里，是否有隐藏的坑点不要掉进去，而不是一看就觉得理解的题目然后开始按照自己的想法去写。现在回头看，面试可能更多的不是看你能不能写的多么的好，而是你的思路是否正确。毕竟很少有面试时就把你的代码拿去跑一下看看的，最终看的也是你的思路和基本功，所以有些细节可能写的不对，但是不影响你表达你会这道题。</p>
+<p>在开始分析前，先放上StackOverflow上面的<a href="https://stackoverflow.com/questions/538060/proper-use-of-the-idisposable-interface?answertab=votes#tab-top" target="_blank" rel="noopener">优秀答案</a>的链接。此答案写得非常清晰，结合官方文档可以更好的理解上面的模式是怎么来的。</p>
+<p>首先说<a href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement" target="_blank" rel="noopener">using</a>和<a href="https://docs.microsoft.com/en-us/dotnet/api/system.idisposable?view=netcore-3.1" target="_blank" rel="noopener">IDisposable</a>，因为一般这两个是一起用的。using是C#提供的一个语法，保证IDisposable被正确的使用。这里说的正确使用，就是说确保Dispose方法得到调用。</p>
+<p>那么什么样的类需要实现IDisposable呢？答案是使用了非托管成员的类，或者使用了实现IDisposable的成员。对于一般的完全没有使用非托管数据类型的类是完全不需要使用IDisposable的。因为当一个对象不再被引用，GC会负责所有托管对象的回收。但是对于非托管对象GC是不知道他们的存在和如何释放的，因此需要程序员自己手动释放，于是就产生了Dispose的调用。而为了防止程序员犯错而忘记调用Dispose，因此出现了using语法，保证一个IDisposable对象在自己的作用域结束的时候，编译器会帮你调用Dispose。</p>
+<p>然后再说<a href="https://docs.microsoft.com/en-us/dotnet/api/system.object.finalize?view=netcore-3.1" target="_blank" rel="noopener">Finalize</a>。Finalize是对象在释放以前最后一个释放资源的机会。GC在回收内存前，会对所有重写了Finalize的对象调用这个方法。对于C#而言，你只需要写一个析构函数，等同于提供了Finalize。Finalize由GC调用，运行在另一个线程上。根据官方文档，Finalize有几个限制。</p>
+<ol>
+<li>执行时间和线程都是不确定的</li>
+<li>任何两个对象的Finalize的调用顺序是不确定的</li>
+</ol>
+<blockquote>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.object.finalize?view=netcore-3.1" target="_blank" rel="noopener">Finalize</a> operations have the following limitations:</p>
+<ul>
+<li>The exact time when the finalizer executes is undefined. To ensure deterministic release of resources for instances of your class, implement a <code>Close</code> method or provide a <a href="https://docs.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=netcore-3.1" target="_blank" rel="noopener">IDisposable.Dispose</a> implementation.</li>
+<li>The finalizers of two objects are not guaranteed to run in any specific order, even if one object refers to the other. That is, if Object A has a reference to Object B and both have finalizers, Object B might have already been finalized when the finalizer of Object A starts.</li>
+<li>The thread on which the finalizer runs is unspecified.</li>
+</ul>
+</blockquote>
+<p>那么回过头来再来解释开头提出的pattern。</p>
+<ol>
+<li>提供析构函数的目的是，如果代码中没有调用Dispose，那么最终的资源还是会在析构函数中释放，只不过比较晚，总比泄露好。</li>
+<li>Dispose已经释放了资源，因此其实可以不用调用Finalize了。<code>GC.SuppressFinalize(this)</code>就是告诉GC不要再调Finalize了。</li>
+<li>由于GC调用Finalize的顺序不确定，因此在Finalize中释放自己的托管成员变量是不安全的（GC会保证托管的对象释放，不用自己管），通过isDisposing来判断。如果是自己手动调用Dispose（包括using的），都可以保证顺序（using后声明的会先释放）。</li>
+<li>通过isDisposed来防止多次调用。</li>
+</ol>
+<p>好了，更详细的还是看文档吧。我这只做一点总结。</p>
 
       
     </div>
@@ -359,7 +378,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/" title="算法面试：检查一个字符串是否是另外两个字符串的组合" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/</a>
+      <a href="http://wkzhou1988.github.io/blog/2020/05/25/Using-IDisposable-And-Finalizer/" title="C#中using, IDisposable, 析构函数的用法" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/05/25/Using-IDisposable-And-Finalizer/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -403,13 +422,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/blog/2020/05/22/Destroy-vs-DestroyImmediate/" title="Destroy vs DestroyImmediate"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/blog/2020/05/08/load-the-same-asset-twice/" title="AssetBundle.LoadAsset的一些小细节"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/blog/2020/05/22/Destroy-vs-DestroyImmediate/" title="Destroy vs DestroyImmediate"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
