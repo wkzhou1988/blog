@@ -17,21 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>算法面试：检查一个字符串是否是另外两个字符串的组合 | Blog</title>
-  <meta name="description" content="最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。 题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1&#x3D;abc，str2&#x3D;def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有">
+  <title>Unity GUID和AssetBundle Hash | Blog</title>
+  <meta name="description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。 第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发">
 <meta property="og:type" content="article">
-<meta property="og:title" content="算法面试：检查一个字符串是否是另外两个字符串的组合">
-<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/index.html">
+<meta property="og:title" content="Unity GUID和AssetBundle Hash">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/index.html">
 <meta property="og:site_name" content="一枚开发的笔记">
-<meta property="og:description" content="最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。 题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1&#x3D;abc，str2&#x3D;def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有">
+<meta property="og:description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。 第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-05-14T10:10:49.000Z">
+<meta property="article:published_time" content="2020-06-10T17:27:49.000Z">
 <meta property="article:modified_time" content="2020-06-10T10:02:58.311Z">
 <meta property="article:author" content="Wenkan">
-<meta property="article:tag" content="算法, C#">
+<meta property="article:tag" content="Unity">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/index.html">
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/index.html">
   
     <link rel="alternate" href="/atom.xml" title="一枚开发的笔记" type="application/atom+xml">
   
@@ -321,14 +321,14 @@
   
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Valid-String-Combination" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Unity-GUID-And-AssetBundle-Hash" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      算法面试：检查一个字符串是否是另外两个字符串的组合
+      Unity GUID和AssetBundle Hash
     </h1>
   
 
@@ -336,35 +336,42 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/blog/2020/05/14/Valid-String-Combination/" class="article-date">
-	  <time datetime="2020-05-14T10:10:49.000Z" itemprop="datePublished">2020-05-14</time>
+	<a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" class="article-date">
+	  <time datetime="2020-06-10T17:27:49.000Z" itemprop="datePublished">2020-06-10</time>
 	</a>
 </span>
         
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/blog/tags/%E7%AE%97%E6%B3%95-C/" rel="tag">算法, C#</a>
+	<a class="article-tag-link" href="/blog/tags/Unity/" rel="tag">Unity</a>
   </span>
 
 
         
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/05/14/Valid-String-Combination/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>最近面试遇到一个算法题，感觉应该是LeetCode上面的原题或者微变形，想在这分析一下。</p>
-<p>题目说有字符串str1，str2， anim，其中anim必须由str1，str2中的字母组成，且必须保证所以字符在anim中的相对顺序和原本的相对顺序不变。比如str1=abc，str2=def，那么adbefc是一个合理的anim，defabc也是，还有很多解。由于是视频面试，原题我没有读的很清楚，并且有点紧张，思考也不是很严谨。当时简单看了一眼题目底下的测试用例，我想了一两分钟就开始写了下面这个版本。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Solution</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="keyword">string</span> str1, <span class="keyword">string</span> str2, <span class="keyword">string</span> anim</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (str1.Length + str2.Length != anim.Length) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (str1.Length == <span class="number">0</span>) <span class="keyword">return</span> str2 == anim;</span><br><span class="line">        <span class="keyword">if</span> (str2.Length == <span class="number">0</span>) <span class="keyword">return</span> str1 == anim;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> index1 = <span class="number">0</span>, index2 = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; anim.Length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (index1 &lt; str1.Length &amp;&amp; str1[index1] == anim[i]) &#123;</span><br><span class="line">                index1++;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (index2 &lt; str2.Length &amp;&amp; str2[index2] == anim[i]) &#123;</span><br><span class="line">                index2++;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到上面的算法假定的是anim由str1，str2的全部字符组成（我不确定题目中有没有说了）。但是最大的问题是，算法中永远优先取str1。那么如果当前位置str1，str2相等，那么就会优先选str1。那这显然是不对的。比如ab，ac，acab这样的组合，第一位都是a，但是算法会从str1去取，然后到第二位判断的时候会认为必须是b或者a，然而现在是c，结果会认为这不是一个合理的答案。其实只要第一位从str2开始取就行了。</p>
-<p>那么看到这里就很明显了，如果str1，str2中有相同的字符，那么就有可能会遇到这个字符不知道是从str1还是str2来取。那么算法上，这就是典型的回溯了。知道了这一点，代码还是比较好写的，并没有太多难点。至于anim的长度会不会比str1+str2要短，这个其实很好解决。这里就不管了，假定<code>anim.Length==str1.Length+str2.Length</code>吧。回溯的思想就是一旦走不通就返回上次的地方，那对于这个题，需要回溯的就是str1和str2的index，即上次anim的字符是从哪个string里面的哪个index取过来的。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">string</span> str1;</span><br><span class="line">    <span class="keyword">string</span> str2;</span><br><span class="line">    <span class="keyword">string</span> anim;</span><br><span class="line">    <span class="keyword">int</span> index1;</span><br><span class="line">    <span class="keyword">int</span> index2;</span><br><span class="line">    <span class="keyword">bool</span> success;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Trackback</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (success) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (index1 + index2 == anim.Length) &#123;</span><br><span class="line">            success = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (index1 &lt; str1.Length &amp;&amp; anim[index1 + index2] == str1[index1]) &#123;</span><br><span class="line">                index1++;</span><br><span class="line">                Trackback();</span><br><span class="line">                index1--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (index2 &lt; str2.Length &amp;&amp; anim[index1 + index2] == str2[index2]) &#123;</span><br><span class="line">                index2++;</span><br><span class="line">                Trackback();</span><br><span class="line">                index2--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">bool</span> <span class="title">IsValid</span>(<span class="params"><span class="keyword">string</span> str1, <span class="keyword">string</span> str2, <span class="keyword">string</span> anim</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.str1 = str1;</span><br><span class="line">        <span class="keyword">this</span>.str2 = str2;</span><br><span class="line">        <span class="keyword">this</span>.anim = anim;</span><br><span class="line">        Trackback();</span><br><span class="line">        <span class="keyword">return</span> success;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>结语：虽然算法现在写出来了，但是第一个方案显然不是太好。现在回想来看，面试的时候的大忌应该是拿到就写。实际上题目虽然有些东西没说清楚，但这正是面试官考察的东西。面试时我们还是应该不要想当然，要多去问题目的边界在哪里，是否有隐藏的坑点不要掉进去，而不是一看就觉得理解的题目然后开始按照自己的想法去写。现在回头看，面试可能更多的不是看你能不能写的多么的好，而是你的思路是否正确。毕竟很少有面试时就把你的代码拿去跑一下看看的，最终看的也是你的思路和基本功，所以有些细节可能写的不对，但是不影响你表达你会这道题。</p>
+        <h3 id="资源GUID的计算方法"><a href="#资源GUID的计算方法" class="headerlink" title="资源GUID的计算方法"></a>资源GUID的计算方法</h3><p>做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。</p>
+<p>第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发现两次生成的GUID是一样的。这说明这个算法至少跟文件的内容Hash是有关的。</p>
+<p>第二个实验：还是先导入查看GUID，但是不同的是这次删除文件后关了重启Unity然后再导入，你会发现GUID居然变了。</p>
+<p><strong>结论就是Unity的算法应该是至少用一个种子（在Unity打开的时候生成）并且结合文件的内容一起计算的。</strong></p>
+<p>知道了这个之后就能解释很多很坑的东西。</p>
+<p>比如说美术同学提交的时候总是忘了提交meta文件，结果其他人更新下来资源之后所有引用都失效了。最可怕的是可能有人生成了meta然后又提交了覆盖了美术的meta，这样基本上美术就要返工了，而且你还跟他解释不清为什么（主要是讲了也听不懂）。</p>
+<h3 id="文件没有更改，AssetBundle的Hash为什么会变"><a href="#文件没有更改，AssetBundle的Hash为什么会变" class="headerlink" title="文件没有更改，AssetBundle的Hash为什么会变"></a>文件没有更改，AssetBundle的Hash为什么会变</h3><p>下面讲一下另一个最近遇到的很坑的点。</p>
+<p>我们项目一直以来打包Lua代码的时候都会造成Lua的AssetBundle的Hash值变化。但是其实我们什么都没有改。按照我们的理解理论上不应该这样子。然后搜索一番之后，网上确实有很多说Unity在每次打AssetBundle之后Hash和MD5都在变。于是很长一段时间我们以为就是这样了，接受了这个“事实”。</p>
+<p>但是这里面有一些解释不清的东西，比如为什么只有Lua的AssetBundle老在变，Prefab的就好好的呢？</p>
+<p>首先我测试了很多次，至少在同一个BuildTarget下，多次打包AssetBundle，Hash和MD5都是不变的。这是可以肯定的。然后我仔细看了我们的代码，原来在Lua打包之前我们把所有Lua代码Copy一份到另一个目录，并且加上.bytes后缀，这样Unity才能打进AssetBundle中（Lua文件不是Unity认识的TextAsset文件，没法打到AssetBundle里）。这样相当与在项目中创建了很多TextAsset文件，每一个都会有一个GUID。打完包之后会删除这些.bytes文件。但是根据前面的理论，同样的文件下次再拷贝过来，GUID是不会变的，那对应的AssetBundle的Hash也不会变。</p>
+<p>可是问题是我们使用Jenkins调用Unity的命令行打包，打包完成之后会退出！这一点被我们忽略了！而我们是没有保存这些.bytes文件到版本控制的。因此每次启动命令行再Copy这些文件后他们的GUID都变了。那打出来的AssetBundle当然就变啦！</p>
+<h3 id="文件明明被改了，AssetBundle的Hash为什么没有变"><a href="#文件明明被改了，AssetBundle的Hash为什么没有变" class="headerlink" title="文件明明被改了，AssetBundle的Hash为什么没有变"></a>文件明明被改了，AssetBundle的Hash为什么没有变</h3><p>最近还发现一个比较坑的点。</p>
+<p>SpriteAtlas有一个Include In Build选项。这个选项不知道大家有没有研究过。基本意思就是，如果你勾上，那么所有引用了这个SpriteAtlas中图片的资源在打包的时候会自动把这个图集引用进来打进AssetBundle而你不用操心，并且你在Manifest文件里也找不到它的踪影，除非你用AssetStudio或者别的工具解开AssetBundle二进制去看里面的文件列表。</p>
+<p>那么现在我有一堆Prefab引用了一个图集，但是图集的压缩格式选错了导致很模糊。我改好压缩格式，在打包，咦，为什么AssetBundle一点变化都没有？加上了<code>BuildAssetBundleOptions.ForceRebuildAssetBundle</code>也没用。</p>
+<p>纠结了很久才发现，原来AssetBundle还是重新打了，MD5也变了，但是Hash没有变。而我们的AssetBundle对比依赖的Hash值，因此客户端更新不到。结论就是AssetBundle的Hash是根据Manifest中的资源文件的生成的。</p>
+<p>解决了以上这些问题，相信做资源更新就不难了。</p>
 
       
     </div>
@@ -374,7 +381,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/" title="算法面试：检查一个字符串是否是另外两个字符串的组合" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/05/14/Valid-String-Combination/</a>
+      <a href="http://wkzhou1988.github.io/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" title="Unity GUID和AssetBundle Hash" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -418,13 +425,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/blog/2020/05/22/Destroy-vs-DestroyImmediate/" title="Destroy vs DestroyImmediate"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/blog/2020/05/08/load-the-same-asset-twice/" title="AssetBundle.LoadAsset的一些小细节"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/" title="C#中using, IDisposable, 析构函数的用法"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
