@@ -18,15 +18,15 @@
   
   
   <title>Unity GUID和AssetBundle Hash | Blog</title>
-  <meta name="description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。 第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发">
+  <meta name="description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。 找到一篇 官方文档，基本上和我做的实验能对上。  The Unity Editor has a map of specific file paths to">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Unity GUID和AssetBundle Hash">
 <meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/index.html">
 <meta property="og:site_name" content="一枚开发的笔记">
-<meta property="og:description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。 第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发">
+<meta property="og:description" content="资源GUID的计算方法做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。 找到一篇 官方文档，基本上和我做的实验能对上。  The Unity Editor has a map of specific file paths to">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-10T17:27:49.000Z">
-<meta property="article:modified_time" content="2020-06-10T10:02:58.311Z">
+<meta property="article:modified_time" content="2020-06-10T10:20:25.861Z">
 <meta property="article:author" content="Wenkan">
 <meta property="article:tag" content="Unity">
 <meta name="twitter:card" content="summary">
@@ -356,10 +356,13 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h3 id="资源GUID的计算方法"><a href="#资源GUID的计算方法" class="headerlink" title="资源GUID的计算方法"></a>资源GUID的计算方法</h3><p>做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。</p>
-<p>第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发现两次生成的GUID是一样的。这说明这个算法至少跟文件的内容Hash是有关的。</p>
-<p>第二个实验：还是先导入查看GUID，但是不同的是这次删除文件后关了重启Unity然后再导入，你会发现GUID居然变了。</p>
-<p><strong>结论就是Unity的算法应该是至少用一个种子（在Unity打开的时候生成）并且结合文件的内容一起计算的。</strong></p>
+        <h3 id="资源GUID的计算方法"><a href="#资源GUID的计算方法" class="headerlink" title="资源GUID的计算方法"></a>资源GUID的计算方法</h3><p>做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。</p>
+<p>找到一篇 <a href="https://learn.unity.com/tutorial/assets-resources-and-assetbundles?_ga=2.194913709.1026850075.1591773718-1618049787.1515739666#5c7f8528edbc2a002053b5a6" target="_blank" rel="noopener">官方文档</a>，基本上和我做的实验能对上。</p>
+<blockquote>
+<p>The Unity Editor has a map of specific file paths to known File GUIDs. A map entry is recorded whenever an Asset is loaded or imported. The map entry links the Asset’s specific path to the Asset’s File GUID. <em>If the Unity Editor is open when a .meta file goes missing and the Asset’s path does not change, the Editor can ensure that the Asset retains the same File GUID.</em></p>
+<p>If the .meta file is lost while the Unity Editor is closed, or the Asset’s path changes without the .meta file moving along with the Asset, then all references to Objects within that Asset will be broken.</p>
+</blockquote>
+<p>经过试验，GUID的生成算法基本跟文件内容无关，跟文件Import的时候的路径有关，当然也跟文件名有关。<strong>最最最重要的是，还跟一个种子有关，这个种子应该是Unity启动的时候生成的（比如根据时间戳什么的）。</strong></p>
 <p>知道了这个之后就能解释很多很坑的东西。</p>
 <p>比如说美术同学提交的时候总是忘了提交meta文件，结果其他人更新下来资源之后所有引用都失效了。最可怕的是可能有人生成了meta然后又提交了覆盖了美术的meta，这样基本上美术就要返工了，而且你还跟他解释不清为什么（主要是讲了也听不懂）。</p>
 <h3 id="文件没有更改，AssetBundle的Hash为什么会变"><a href="#文件没有更改，AssetBundle的Hash为什么会变" class="headerlink" title="文件没有更改，AssetBundle的Hash为什么会变"></a>文件没有更改，AssetBundle的Hash为什么会变</h3><p>下面讲一下另一个最近遇到的很坑的点。</p>
