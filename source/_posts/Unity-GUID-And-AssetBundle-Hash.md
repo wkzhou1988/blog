@@ -6,13 +6,15 @@ tags: Unity
 
 ### 资源GUID的计算方法
 
-做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。如果有人看到官方有对算法的解释，请不吝赐教告诉我。
+做Unity开发的应该都知道Unity对每个资源文件都会生成一个GUID存在对应的meta文件中。但是Unity似乎并没有在在什么地方明确说过这个GUID是怎么生成的。于是我做了一些小实验，发现了一些有用而且重要的性质。
 
-第一个实验：保持Unity开着，把同一个文件导入到Unity，记录下GUID，然后删除后再导入一遍，你会发现两次生成的GUID是一样的。这说明这个算法至少跟文件的内容Hash是有关的。
+找到一篇 [官方文档](https://learn.unity.com/tutorial/assets-resources-and-assetbundles?_ga=2.194913709.1026850075.1591773718-1618049787.1515739666#5c7f8528edbc2a002053b5a6)，基本上和我做的实验能对上。
 
-第二个实验：还是先导入查看GUID，但是不同的是这次删除文件后关了重启Unity然后再导入，你会发现GUID居然变了。
+> The Unity Editor has a map of specific file paths to known File GUIDs. A map entry is recorded whenever an Asset is loaded or imported. The map entry links the Asset's specific path to the Asset's File GUID. *If the Unity Editor is open when a .meta file goes missing and the Asset's path does not change, the Editor can ensure that the Asset retains the same File GUID.*
+>
+> If the .meta file is lost while the Unity Editor is closed, or the Asset's path changes without the .meta file moving along with the Asset, then all references to Objects within that Asset will be broken.
 
-**结论就是Unity的算法应该是至少用一个种子（在Unity打开的时候生成）并且结合文件的内容一起计算的。**
+经过试验，GUID的生成算法基本跟文件内容无关，跟文件Import的时候的路径有关，当然也跟文件名有关。**最最最重要的是，还跟一个种子有关，这个种子应该是Unity启动的时候生成的（比如根据时间戳什么的）。**
 
 知道了这个之后就能解释很多很坑的东西。
 
