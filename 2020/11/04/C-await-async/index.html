@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>C# await/async对Unity开发游戏的好处 | Blog</title>
+  <meta name="description" content="作为一名游戏前端开发，那么肯定会经常需要些一些异步的逻辑，比如在一个回合制的游戏中，需要场上所有的角色挨个释放技能。 异步的函数，在Unity当中有很多种实现方式。比较通用一些的做法，可以通过回调或者派发和监听事件来实现异步的函数调用。回调这种方式的好处是，这种编程思路是非常通用的，不依赖于任何Unity的功能，因为可以用任何语言在任何引擎和环境中实现异步功能。因此你的代码的可移植性会很好。但是缺">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C# await&#x2F;async对Unity开发游戏的好处">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/11/04/C-await-async/index.html">
+<meta property="og:site_name" content="一枚开发的笔记">
+<meta property="og:description" content="作为一名游戏前端开发，那么肯定会经常需要些一些异步的逻辑，比如在一个回合制的游戏中，需要场上所有的角色挨个释放技能。 异步的函数，在Unity当中有很多种实现方式。比较通用一些的做法，可以通过回调或者派发和监听事件来实现异步的函数调用。回调这种方式的好处是，这种编程思路是非常通用的，不依赖于任何Unity的功能，因为可以用任何语言在任何引擎和环境中实现异步功能。因此你的代码的可移植性会很好。但是缺">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-04T23:47:51.000Z">
+<meta property="article:modified_time" content="2020-11-04T16:58:37.031Z">
+<meta property="article:author" content="Wenkan">
+<meta property="article:tag" content="C#, Unity">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/11/04/C-await-async/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="一枚开发的笔记" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/wkzhou1988" target="_blank">
+          <img class="img-circle img-rotate" src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Vincent</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Game Developer in Unity</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Beijing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/blog/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/blog/books">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/blog/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C#</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C-Unity/" rel="tag">C#, Unity</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Unity/" rel="tag">Unity</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/%E7%AE%97%E6%B3%95-C/" rel="tag">算法, C#</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/blog/tags/C/" style="font-size: 13px;">C#</a> <a href="/blog/tags/C-Unity/" style="font-size: 13px;">C#, Unity</a> <a href="/blog/tags/Unity/" style="font-size: 14px;">Unity</a> <a href="/blog/tags/%E7%AE%97%E6%B3%95-C/" style="font-size: 13px;">算法, C#</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/11/">十一月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/05/">五月 2020</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/04/C-await-async/" class="title">C# await/async对Unity开发游戏的好处</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-04T23:47:51.000Z" itemprop="datePublished">2020-11-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" class="title">Unity GUID和AssetBundle Hash</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-06-10T17:27:49.000Z" itemprop="datePublished">2020-06-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/" class="title">C#中using, IDisposable, 析构函数的用法</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-25T11:24:55.000Z" itemprop="datePublished">2020-05-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/22/Destroy-vs-DestroyImmediate/" class="title">Destroy vs DestroyImmediate</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-22T11:09:26.000Z" itemprop="datePublished">2020-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/14/Valid-String-Combination/" class="title">算法面试：检查一个字符串是否是另外两个字符串的组合</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-14T10:10:49.000Z" itemprop="datePublished">2020-05-14</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-C-await-async" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C# await/async对Unity开发游戏的好处
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/blog/2020/11/04/C-await-async/" class="article-date">
+	  <time datetime="2020-11-04T23:47:51.000Z" itemprop="datePublished">2020-11-04</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/blog/tags/C-Unity/" rel="tag">C#, Unity</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/11/04/C-await-async/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>作为一名游戏前端开发，那么肯定会经常需要些一些异步的逻辑，比如在一个回合制的游戏中，需要场上所有的角色挨个释放技能。</p>
+<p>异步的函数，在Unity当中有很多种实现方式。比较通用一些的做法，可以通过回调或者派发和监听事件来实现异步的函数调用。回调这种方式的好处是，这种编程思路是非常通用的，不依赖于任何Unity的功能，因为可以用任何语言在任何引擎和环境中实现异步功能。因此你的代码的可移植性会很好。但是缺点也很明显。以下总结几种回调最让人觉得恶心的地方。</p>
+<ol>
+<li><p>回调传递的层级越来越深，越来越容易在一些分支忘记最终的调用，导致上层永远收不到完成的回调</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Soldier</span> &#123;</span><br><span class="line">    <span class="keyword">bool</span> isDisabled;</span><br><span class="line">    <span class="keyword">bool</span> isInstantAttack;</span><br><span class="line">    <span class="keyword">int</span> damage;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Attack</span>(<span class="params">Action&lt;<span class="keyword">int</span>&gt; callback</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (isDisabled) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (isInstantAttack) &#123;</span><br><span class="line">            callback?.Invoke(damage);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        SomeAnimation(() =&gt; &#123;</span><br><span class="line">            callback?.Invoke(damage);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">SomeAnimation</span>(<span class="params">Action callback</span>)</span> &#123;</span><br><span class="line">        <span class="comment">// play animation for a few seconds</span></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        callback?.Invoke();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LogicRunner</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SomeLogic</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> s = <span class="keyword">new</span> Soldier();</span><br><span class="line">        s.Attack(damage =&gt; &#123;</span><br><span class="line">            Debug.Log(<span class="string">$"attack caused <span class="subst">&#123;damage&#125;</span> points of damage"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比如像上面这种情况，callback被一级一级往下传递，当逻辑变得复杂之后，很容易在某一层忘记调用。并且callback被不停的传递这件事本身就已经很不优雅了。</p>
+</li>
+<li><p>如果需要在一个循环中调用异步函数，就需要修改代码结构，增加许多逻辑和变量保存状态</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LogicRunner</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SomeLogic</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> soldiers = <span class="keyword">new</span> List&lt;Soldier&gt;();</span><br><span class="line">        <span class="comment">// unable to write this way...</span></span><br><span class="line">        <span class="comment">//foreach(var s in soldiers) &#123;</span></span><br><span class="line">        <span class="comment">//    s.Attack(damage =&gt; Debug.Log(damage));</span></span><br><span class="line">        <span class="comment">//&#125;</span></span><br><span class="line">        <span class="keyword">var</span> index = <span class="number">0</span>;</span><br><span class="line">        Action nextAttack = <span class="literal">null</span>;</span><br><span class="line">        nextAttack = <span class="keyword">new</span> Action(() =&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (index == soldiers.Count) &#123;</span><br><span class="line">                Debug.Log(<span class="string">"All Soldiers have attacked"</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">var</span> soldier = soldiers[index];</span><br><span class="line">            soldier.Attack(damage =&gt; &#123;</span><br><span class="line">                index++;</span><br><span class="line">                nextAttack();</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你的代码大概得类似于上面的例子。反正是无法在一个for循环或者while循环里面解决问题。实际上，上面的这个写法已经形成了一个简单的状态机了。通过index实际上就记录的状态机的状态。所以本质上，这种异步的代码就是用状态机以及回调实现的。</p>
+</li>
+</ol>
+<p>OK。我就举两个例子了吧。实际上这是最简单的情况。在真实的开发者中，异步的逻辑常常很复杂，有非常多的步骤要等待，中间就会产生非常多的回调，这样就产生了所谓的“Callback Hell”。有过几个项目开发经验的同学应该很容易理解。</p>
+<p>那么Coroutine能解决这个问题吗？</p>
+<p>能一定程度上简化异步代码的编码难度，但是对于需要前一步结果返回值的情况，Coroutine依然要以来很多的成员变量来时间结果的传递。</p>
+<p>例如下面这个例子。我们全部用Coroutine实现异步的攻击，但是由于Coroutine没有返回值，因此计算的结果我们不得不通过一个成员变量保存，在经过Get函数拿到。当然可能还有别的实现，不过你都绕不过要用成员变量去存储和传递。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Soldier</span> : <span class="title">MonoBehaviour</span> &#123;</span><br><span class="line">    <span class="keyword">bool</span> isDisabled;</span><br><span class="line">    <span class="keyword">bool</span> isInstantAttack;</span><br><span class="line">    <span class="keyword">int</span> damage;</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">GetDamageResult</span>(<span class="params"></span>)</span> =&gt; ret;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">Attack</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (isDisabled) &#123;</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (isInstantAttack) &#123;</span><br><span class="line">            ret = damage;</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        StartCoroutine(SomeAnimation());</span><br><span class="line">        ret = damage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">IEnumerator <span class="title">SomeAnimation</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">yield</span> return new <span class="title">WaitForSeconds</span>(<span class="params"><span class="number">3</span></span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LogicRunner</span> : <span class="title">MonoBehaviour</span> &#123;</span><br><span class="line">    <span class="keyword">int</span> totalDamage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">GetTotalDamage</span>(<span class="params"></span>)</span> =&gt; totalDamage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">SomeLogic</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> soldiers = <span class="keyword">new</span> List&lt;Soldier&gt;();</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="keyword">var</span> s <span class="keyword">in</span> soldiers) &#123;</span><br><span class="line">            <span class="function"><span class="keyword">yield</span> return <span class="title">StartCoroutine</span>(<span class="params">s.Attack(</span>))</span>;</span><br><span class="line">            totalDamage += s.GetDamageResult();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以有办法根本解决这个问题吗？</p>
+<p>这里就是await和async的好处了。我们来看看我们怎么改造上面的例子。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Soldier</span> &#123;</span><br><span class="line">    <span class="keyword">bool</span> isDisabled;</span><br><span class="line">    <span class="keyword">bool</span> isInstantAttack;</span><br><span class="line">    <span class="keyword">int</span> damage;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;<span class="keyword">int</span>&gt; <span class="title">Attack</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (isDisabled) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (isInstantAttack) &#123;</span><br><span class="line">            <span class="keyword">return</span> damage;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">await</span> SomeAnimation();</span><br><span class="line">        <span class="keyword">return</span> damage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">async</span> Task <span class="title">SomeAnimation</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">await</span> Task.Delay(TimeSpan.FromSeconds(<span class="number">3</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LogicRunner</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;<span class="keyword">int</span>&gt; <span class="title">SomeLogic</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> totalDamage = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">var</span> soldiers = <span class="keyword">new</span> List&lt;Soldier&gt;();</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="keyword">var</span> s <span class="keyword">in</span> soldiers) &#123;</span><br><span class="line">            totalDamage += <span class="keyword">await</span> s.Attack();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> totalDamage;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在的代码是不是很优雅很简洁呢？你会发现Attack里面你再也不用担心会忘记回调函数，因为编译器会保证这个函数一定有一个返回值。其次，你再也不用声明一些没什么用的成员变量来传递结果。结果的传递和普通的函数调用一模一样。代码变得无比简洁和清晰。当逻辑变得复杂之后，维护这样的代码会变得十分简单。</p>
+<p>下一篇，我们一起来看看await和async关键字到底实现了什么，编译器帮你做了什么来实现这些功能。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://wkzhou1988.github.io/blog/2020/11/04/C-await-async/" title="C# await/async对Unity开发游戏的好处" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/11/04/C-await-async/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/wkzhou1988" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/wkzhou1988" target="_blank"><span class="text-dark">Vincent</span><small class="ml-1x">Game Developer in Unity</small></a></h3>
+        <div>游戏开发路上慢慢积累</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" title="Unity GUID和AssetBundle Hash"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2020 Wenkan
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/blog/js/plugin.min.js"></script>
+
+
+<script src="/blog/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/blog/',
+        CONTENT_URL: '/blog/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/blog/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
