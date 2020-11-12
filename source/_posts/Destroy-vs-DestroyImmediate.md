@@ -1,7 +1,8 @@
 ---
 title: Destroy vs DestroyImmediate
 date: 2020-05-22 11:09:26
-tags: Unity
+tags: 
+- Unity
 ---
 
 > Destroys the object `obj` immediately. You are strongly recommended to use Destroy instead.

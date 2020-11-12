@@ -1,7 +1,8 @@
 ---
 title: Unity GUID和AssetBundle Hash
 date: 2020-06-10 17:27:49
-tags: Unity
+tags: 
+- Unity
 ---
 
 ### 资源GUID的计算方法
