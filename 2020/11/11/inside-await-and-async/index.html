@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>深入Await和async | Blog</title>
+  <meta name="description" content="上次我们讲了用await&#x2F;async如何能在游戏开发过程中写出更加好维护的异步代码。实际上，上一篇文章中我们已经提到了，异步代码的基本思想就是使用状态机。只不过上一篇的代码的状态机写得非常的简单，可扩展性可读性等等都比较差，并不是什么通用的代码。 那么这篇文章当中我们就来看看C#编辑器到底给我们生成了什么代码。 首先贴上一段原始代码。 1234567891011121314151617181920">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入Await和async">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/11/11/inside-await-and-async/index.html">
+<meta property="og:site_name" content="一枚开发的笔记">
+<meta property="og:description" content="上次我们讲了用await&#x2F;async如何能在游戏开发过程中写出更加好维护的异步代码。实际上，上一篇文章中我们已经提到了，异步代码的基本思想就是使用状态机。只不过上一篇的代码的状态机写得非常的简单，可扩展性可读性等等都比较差，并不是什么通用的代码。 那么这篇文章当中我们就来看看C#编辑器到底给我们生成了什么代码。 首先贴上一段原始代码。 1234567891011121314151617181920">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-11T22:24:43.000Z">
+<meta property="article:modified_time" content="2020-11-12T15:54:09.433Z">
+<meta property="article:author" content="Wenkan">
+<meta property="article:tag" content="Unity">
+<meta property="article:tag" content="C#">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/11/11/inside-await-and-async/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="一枚开发的笔记" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/wkzhou1988" target="_blank">
+          <img class="img-circle img-rotate" src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Vincent</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Game Developer in Unity</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Beijing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/blog/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/blog/books">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/blog/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C#</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Unity/" rel="tag">Unity</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/blog/tags/C/" style="font-size: 13.5px;">C#</a> <a href="/blog/tags/Unity/" style="font-size: 14px;">Unity</a> <a href="/blog/tags/%E7%AE%97%E6%B3%95/" style="font-size: 13px;">算法</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/11/">十一月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/05/">五月 2020</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/11/inside-await-and-async/" class="title">深入Await和async</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-11T22:24:43.000Z" itemprop="datePublished">2020-11-11</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/04/C-await-async/" class="title">C# await/async对Unity开发游戏的好处</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-04T23:47:51.000Z" itemprop="datePublished">2020-11-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" class="title">Unity GUID和AssetBundle Hash</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-06-10T17:27:49.000Z" itemprop="datePublished">2020-06-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/" class="title">C#中using, IDisposable, 析构函数的用法</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-25T11:24:55.000Z" itemprop="datePublished">2020-05-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/22/Destroy-vs-DestroyImmediate/" class="title">Destroy vs DestroyImmediate</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-22T11:09:26.000Z" itemprop="datePublished">2020-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-inside-await-and-async" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入Await和async
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/blog/2020/11/11/inside-await-and-async/" class="article-date">
+	  <time datetime="2020-11-11T22:24:43.000Z" itemprop="datePublished">2020-11-11</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/blog/tags/C/" rel="tag">C#</a>, <a class="article-tag-link" href="/blog/tags/Unity/" rel="tag">Unity</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/11/11/inside-await-and-async/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>上次我们讲了用await/async如何能在游戏开发过程中写出更加好维护的异步代码。实际上，上一篇文章中我们已经提到了，异步代码的基本思想就是使用状态机。只不过上一篇的代码的状态机写得非常的简单，可扩展性可读性等等都比较差，并不是什么通用的代码。</p>
+<p>那么这篇文章当中我们就来看看C#编辑器到底给我们生成了什么代码。</p>
+<p>首先贴上一段原始代码。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"><span class="keyword">using</span> System.Diagnostics;</span><br><span class="line"><span class="keyword">using</span> System.Threading;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">TaskExample</span> &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title">Program</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span> &#123;</span><br><span class="line">            StartAsync();</span><br><span class="line">            Thread.CurrentThread.Join();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">async</span> <span class="keyword">void</span> <span class="title">StartAsync</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">            <span class="keyword">var</span> result = <span class="keyword">await</span> DoSomethingAsync(<span class="number">99</span>);</span><br><span class="line">            Console.WriteLine(result);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">async</span> Task&lt;<span class="keyword">string</span>&gt; <span class="title">DoSomethingAsync</span>(<span class="params"><span class="keyword">int</span> someParam</span>)</span> &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">"Before delay"</span>);</span><br><span class="line">            <span class="keyword">await</span> Task.Delay(TimeSpan.FromSeconds(<span class="number">3</span>));</span><br><span class="line">            Console.WriteLine(<span class="string">"After delay"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">$"the param is <span class="subst">&#123;someParam&#125;</span>"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到代码很简单，有两个async的方法，其中主要区别是一个是async void，另一个是async Task<T>类型的。这两个有什么区别，有很多文档详细解释，这里就不做介绍了。</p>
+<p>那么我们再来看看C#编译器处理过的中间代码是什么样的。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Decompiled with JetBrains decompiler</span></span><br><span class="line"><span class="comment">// Type: TaskExample.Program</span></span><br><span class="line"><span class="comment">// Assembly: Task, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</span></span><br><span class="line"><span class="comment">// MVID: B3D3C194-54A1-4EE1-A493-99E41A7519D8</span></span><br><span class="line"><span class="comment">// Assembly location: C:\Users\Admin\source\repos\Task\Task\bin\Debug\netcoreapp3.1\Task.dll</span></span><br><span class="line"><span class="comment">// Compiler-generated code is shown</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Diagnostics;</span><br><span class="line"><span class="keyword">using</span> System.Runtime.CompilerServices;</span><br><span class="line"><span class="keyword">using</span> System.Threading;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">TaskExample</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">internal</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      Program.StartAsync();</span><br><span class="line">      Thread.CurrentThread.Join();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">AsyncStateMachine(typeof (Program.&lt;StartAsync&gt;d__1))</span>]</span><br><span class="line">    [<span class="meta">DebuggerStepThrough</span>]</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">StartAsync</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      Program.&lt;StartAsync&gt;d__1 stateMachine = <span class="keyword">new</span> Program.&lt;StartAsync&gt;d__1();</span><br><span class="line">      stateMachine.&lt;&gt;t__builder = AsyncVoidMethodBuilder.Create();</span><br><span class="line">      stateMachine.&lt;&gt;<span class="number">1</span>__state = <span class="number">-1</span>;</span><br><span class="line">      stateMachine.&lt;&gt;t__builder.Start&lt;Program.&lt;StartAsync&gt;d__1&gt;(<span class="keyword">ref</span> stateMachine);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">AsyncStateMachine(typeof (Program.&lt;DoSomethingAsync&gt;d__2))</span>]</span><br><span class="line">    [<span class="meta">DebuggerStepThrough</span>]</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Task&lt;<span class="keyword">string</span>&gt; <span class="title">DoSomethingAsync</span>(<span class="params"><span class="keyword">int</span> someParam</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      Program.&lt;DoSomethingAsync&gt;d__2 stateMachine = <span class="keyword">new</span> Program.&lt;DoSomethingAsync&gt;d__2();</span><br><span class="line">      stateMachine.someParam = someParam;</span><br><span class="line">      stateMachine.&lt;&gt;t__builder = AsyncTaskMethodBuilder&lt;<span class="keyword">string</span>&gt;.Create();</span><br><span class="line">      stateMachine.&lt;&gt;<span class="number">1</span>__state = <span class="number">-1</span>;</span><br><span class="line">      stateMachine.&lt;&gt;t__builder.Start&lt;Program.&lt;DoSomethingAsync&gt;d__2&gt;(<span class="keyword">ref</span> stateMachine);</span><br><span class="line">      <span class="keyword">return</span> stateMachine.&lt;&gt;t__builder.Task;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Program</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">base</span>..ctor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CompilerGenerated</span>]</span><br><span class="line">    private sealed class &lt;StartAsync&gt;d__1 : IAsyncStateMachine</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">int</span> &lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">      <span class="keyword">public</span> AsyncVoidMethodBuilder &lt;&gt;t__builder;</span><br><span class="line">      <span class="keyword">private</span> <span class="keyword">string</span> &lt;result&gt;<span class="number">5</span>__1;</span><br><span class="line">      <span class="keyword">private</span> <span class="keyword">string</span> &lt;&gt;s__2;</span><br><span class="line">      <span class="keyword">private</span> TaskAwaiter&lt;<span class="keyword">string</span>&gt; &lt;&gt;u__1;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">public</span> &lt;StartAsync&gt;d__1()</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">base</span>..ctor();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">void</span> IAsyncStateMachine.MoveNext()</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">int</span> num1 = <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">          TaskAwaiter&lt;<span class="keyword">string</span>&gt; awaiter;</span><br><span class="line">          <span class="keyword">int</span> num2;</span><br><span class="line">          <span class="keyword">if</span> (num1 != <span class="number">0</span>)</span><br><span class="line">          &#123;</span><br><span class="line">            awaiter = Program.DoSomethingAsync(<span class="number">99</span>).GetAwaiter();</span><br><span class="line">            <span class="keyword">if</span> (!awaiter.IsCompleted)</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">0</span>;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;u__1 = awaiter;</span><br><span class="line">              Program.&lt;StartAsync&gt;d__1 stateMachine = <span class="keyword">this</span>;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;t__builder.AwaitUnsafeOnCompleted&lt;TaskAwaiter&lt;<span class="keyword">string</span>&gt;, Program.&lt;StartAsync&gt;d__1&gt;(<span class="keyword">ref</span> awaiter, <span class="keyword">ref</span> stateMachine);</span><br><span class="line">              <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">          &#123;</span><br><span class="line">            awaiter = <span class="keyword">this</span>.&lt;&gt;u__1;</span><br><span class="line">            <span class="keyword">this</span>.&lt;&gt;u__1 = <span class="keyword">new</span> TaskAwaiter&lt;<span class="keyword">string</span>&gt;();</span><br><span class="line">            <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">-1</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;s__2 = awaiter.GetResult();</span><br><span class="line">          <span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1 = <span class="keyword">this</span>.&lt;&gt;s__2;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;s__2 = (<span class="keyword">string</span>) <span class="literal">null</span>;</span><br><span class="line">          Console.WriteLine(<span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1 = (<span class="keyword">string</span>) <span class="literal">null</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;t__builder.SetException(ex);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">        <span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1 = (<span class="keyword">string</span>) <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;t__builder.SetResult();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      [<span class="meta">DebuggerHidden</span>]</span><br><span class="line">      <span class="keyword">void</span> IAsyncStateMachine.SetStateMachine(IAsyncStateMachine stateMachine)</span><br><span class="line">      &#123;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">CompilerGenerated</span>]</span><br><span class="line">    private sealed class &lt;DoSomethingAsync&gt;d__2 : IAsyncStateMachine</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">int</span> &lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">      <span class="keyword">public</span> AsyncTaskMethodBuilder&lt;<span class="keyword">string</span>&gt; &lt;&gt;t__builder;</span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">int</span> someParam;</span><br><span class="line">      <span class="keyword">private</span> TaskAwaiter &lt;&gt;u__1;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">public</span> &lt;DoSomethingAsync&gt;d__2()</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">base</span>..ctor();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">void</span> IAsyncStateMachine.MoveNext()</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">int</span> num1 = <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">        <span class="keyword">string</span> result;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">          TaskAwaiter awaiter;</span><br><span class="line">          <span class="keyword">int</span> num2;</span><br><span class="line">          <span class="keyword">if</span> (num1 != <span class="number">0</span>)</span><br><span class="line">          &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">"Before delay"</span>);</span><br><span class="line">            awaiter = Task.Delay(TimeSpan.FromSeconds(<span class="number">3.0</span>)).GetAwaiter();</span><br><span class="line">            <span class="keyword">if</span> (!awaiter.IsCompleted)</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">0</span>;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;u__1 = awaiter;</span><br><span class="line">              Program.&lt;DoSomethingAsync&gt;d__2 stateMachine = <span class="keyword">this</span>;</span><br><span class="line">              <span class="keyword">this</span>.&lt;&gt;t__builder.AwaitUnsafeOnCompleted&lt;TaskAwaiter, Program.&lt;DoSomethingAsync&gt;d__2&gt;(<span class="keyword">ref</span> awaiter, <span class="keyword">ref</span> stateMachine);</span><br><span class="line">              <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">          &#123;</span><br><span class="line">            awaiter = <span class="keyword">this</span>.&lt;&gt;u__1;</span><br><span class="line">            <span class="keyword">this</span>.&lt;&gt;u__1 = <span class="keyword">new</span> TaskAwaiter();</span><br><span class="line">            <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">-1</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          awaiter.GetResult();</span><br><span class="line">          Console.WriteLine(<span class="string">"After delay"</span>);</span><br><span class="line">          result = <span class="keyword">string</span>.Format(<span class="string">"the param is &#123;0&#125;"</span>, (<span class="keyword">object</span>) <span class="keyword">this</span>.someParam);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;t__builder.SetException(ex);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;t__builder.SetResult(result);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      [<span class="meta">DebuggerHidden</span>]</span><br><span class="line">      <span class="keyword">void</span> IAsyncStateMachine.SetStateMachine(IAsyncStateMachine stateMachine)</span><br><span class="line">      &#123;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码很长，但是我们可以拆开来看。</p>
+<p>首先我们来看两个async方法变成什么样了。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">AsyncStateMachine(typeof (Program.&lt;StartAsync&gt;d__1))</span>]</span><br><span class="line">[<span class="meta">DebuggerStepThrough</span>]</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">StartAsync</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Program.&lt;StartAsync&gt;d__1 stateMachine = <span class="keyword">new</span> Program.&lt;StartAsync&gt;d__1();</span><br><span class="line">  stateMachine.&lt;&gt;t__builder = AsyncVoidMethodBuilder.Create();</span><br><span class="line">  stateMachine.&lt;&gt;<span class="number">1</span>__state = <span class="number">-1</span>;</span><br><span class="line">  stateMachine.&lt;&gt;t__builder.Start&lt;Program.&lt;StartAsync&gt;d__1&gt;(<span class="keyword">ref</span> stateMachine);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">AsyncStateMachine(typeof (Program.&lt;DoSomethingAsync&gt;d__2))</span>]</span><br><span class="line">[<span class="meta">DebuggerStepThrough</span>]</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Task&lt;<span class="keyword">string</span>&gt; <span class="title">DoSomethingAsync</span>(<span class="params"><span class="keyword">int</span> someParam</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Program.&lt;DoSomethingAsync&gt;d__2 stateMachine = <span class="keyword">new</span> Program.&lt;DoSomethingAsync&gt;d__2();</span><br><span class="line">  stateMachine.someParam = someParam;</span><br><span class="line">  stateMachine.&lt;&gt;t__builder = AsyncTaskMethodBuilder&lt;<span class="keyword">string</span>&gt;.Create();</span><br><span class="line">  stateMachine.&lt;&gt;<span class="number">1</span>__state = <span class="number">-1</span>;</span><br><span class="line">  stateMachine.&lt;&gt;t__builder.Start&lt;Program.&lt;DoSomethingAsync&gt;d__2&gt;(<span class="keyword">ref</span> stateMachine);</span><br><span class="line">  <span class="keyword">return</span> stateMachine.&lt;&gt;t__builder.Task;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，async void函数变成了void函数，但是上面多了一个标签<code>[AsyncStateMachine(typeof (Program.&lt;StartAsync&gt;d__1))]</code>。这个标签有两个作用。第一，告诉编译器这是一个异步函数，第二，告诉编译器这个函数对应的AsyncStateMachine类是谁。<a href="https://docs.microsoft.com/zh-cn/dotnet/api/system.runtime.compilerservices.asyncstatemachineattribute?view=xamarinandroid-7.1" target="_blank" rel="noopener">文档在这</a></p>
+<p>其次，这两个方法里面的代码已经完全不是我们写的代码了，而是被编译器替代成了生成的代码。这两个代码应该能看懂是什么意思。基本上就是创建了一个状态机stateMachine，而这个状态机的原型就是上面标签里面的那个类。那个类也是又编译器生成的一个类，是不可见的。其中还有一个关键类型就是AsyncTaskMethodBuilder<T>和非泛型的AsyncVoidMethodBuilder类。这两个类是为了生成stateMachine里面的builder字段而存在的。我们可以看到这里状态机的state初始化为-1，并且调用了builder的Start方法，把状态机传了进去。之所以这里是ref传递，因为stateMachine是一个结构体值类型。</p>
+<p>我们再观察下代码，发现我们两个方法里面的内容实际上被放到了对应的stateMachine的MoveNext方法里面去了。熟悉IEnumerator的朋友对MoveNext应该不陌生。MoveNext就是实现状态机的状态切换的方法。</p>
+<p>比如我们先看看DoSomethingAsync这个方法的代码变成什么样了。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[<span class="meta">CompilerGenerated</span>]</span><br><span class="line">private sealed class &lt;DoSomethingAsync&gt;d__2 : IAsyncStateMachine</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">int</span> &lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">  <span class="keyword">public</span> AsyncTaskMethodBuilder&lt;<span class="keyword">string</span>&gt; &lt;&gt;t__builder;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">int</span> someParam;</span><br><span class="line">  <span class="keyword">private</span> TaskAwaiter &lt;&gt;u__1;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> &lt;DoSomethingAsync&gt;d__2()</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">base</span>..ctor();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> IAsyncStateMachine.MoveNext()</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">int</span> num1 = <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state;</span><br><span class="line">    <span class="keyword">string</span> result;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">      TaskAwaiter awaiter;</span><br><span class="line">      <span class="keyword">int</span> num2;</span><br><span class="line">      <span class="keyword">if</span> (num1 != <span class="number">0</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">"Before delay"</span>);</span><br><span class="line">        awaiter = Task.Delay(TimeSpan.FromSeconds(<span class="number">3.0</span>)).GetAwaiter();</span><br><span class="line">        <span class="keyword">if</span> (!awaiter.IsCompleted)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">0</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;u__1 = awaiter;</span><br><span class="line">          Program.&lt;DoSomethingAsync&gt;d__2 stateMachine = <span class="keyword">this</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;t__builder.AwaitUnsafeOnCompleted&lt;TaskAwaiter, Program.&lt;DoSomethingAsync&gt;d__2&gt;(<span class="keyword">ref</span> awaiter, <span class="keyword">ref</span> stateMachine);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        awaiter = <span class="keyword">this</span>.&lt;&gt;u__1;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;u__1 = <span class="keyword">new</span> TaskAwaiter();</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">-1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      awaiter.GetResult();</span><br><span class="line">      Console.WriteLine(<span class="string">"After delay"</span>);</span><br><span class="line">      result = <span class="keyword">string</span>.Format(<span class="string">"the param is &#123;0&#125;"</span>, (<span class="keyword">object</span>) <span class="keyword">this</span>.someParam);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">      <span class="keyword">this</span>.&lt;&gt;t__builder.SetException(ex);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = <span class="number">-2</span>;</span><br><span class="line">    <span class="keyword">this</span>.&lt;&gt;t__builder.SetResult(result);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到里面有几个状态：-1是刚进入的状态，打印Before Delay并且等3秒，0是After Delay的状态，在这里执行Delay 3秒的逻辑；然后-2是退出的状态。最后整个函数的返回值由builder的SetResult来传给awaiter。而这个返回值会在调用这个函数的地方由这个函数返回的Task的awaiter来取得。这里可以查看StartAsync这个方法。StartAsync调用了DoSomethingAsync得到一个Task，然后调用了GetAwaiter来拿到awaiter对象。通过awaiter的GetResult最后拿到异步函数的返回值。</p>
+<p>好啦。这篇文章扒开了编译器生成的代码的外衣，我们看到了C#编译器帮我们生成了哪些代码来实现异步函数的状态机。这对我们理解异步编程有很大帮助。如果是自己来写异步代码，也完全可以参考这个思路。例如在monoBehaviour里面，Update里面完全就可以用几个状态切换不同的更新代码。</p>
+<p>下一篇文章我们将看看如何自己定义一个可以await的类，以及如何使这个类支持async关键字。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://wkzhou1988.github.io/blog/2020/11/11/inside-await-and-async/" title="深入Await和async" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/11/11/inside-await-and-async/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/wkzhou1988" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/wkzhou1988" target="_blank"><span class="text-dark">Vincent</span><small class="ml-1x">Game Developer in Unity</small></a></h3>
+        <div>游戏开发路上慢慢积累</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/blog/2020/11/04/C-await-async/" title="C# await/async对Unity开发游戏的好处"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2020 Wenkan
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/blog/js/plugin.min.js"></script>
+
+
+<script src="/blog/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/blog/',
+        CONTENT_URL: '/blog/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/blog/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
