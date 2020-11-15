@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Create-Custom-Awaitable-Types | Blog</title>
+  <meta name="description" content="title: 创建自己的类型，实现await关键字的date: 2020-11-15 20:09:53tags:  C# Unity  前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Create-Custom-Awaitable-Types">
+<meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/index.html">
+<meta property="og:site_name" content="一枚开发的笔记">
+<meta property="og:description" content="title: 创建自己的类型，实现await关键字的date: 2020-11-15 20:09:53tags:  C# Unity  前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-15T13:36:39.629Z">
+<meta property="article:modified_time" content="2020-11-15T13:36:39.629Z">
+<meta property="article:author" content="Wenkan">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="一枚开发的笔记" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/wkzhou1988" target="_blank">
+          <img class="img-circle img-rotate" src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Vincent</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Game Developer in Unity</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Beijing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/blog/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/blog/books">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/blog/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C#</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Unity/" rel="tag">Unity</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/blog/tags/C/" style="font-size: 13.5px;">C#</a> <a href="/blog/tags/Unity/" style="font-size: 14px;">Unity</a> <a href="/blog/tags/%E7%AE%97%E6%B3%95/" style="font-size: 13px;">算法</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/11/">十一月 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/06/">六月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2020/05/">五月 2020</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/15/Create-custom-awaitable-types/" class="title">Create-Custom-Awaitable-Types</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-15T13:36:39.629Z" itemprop="datePublished">2020-11-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/11/inside-await-and-async/" class="title">深入Await和async</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-11T22:24:43.000Z" itemprop="datePublished">2020-11-11</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/11/04/C-await-async/" class="title">C# await/async对Unity开发游戏的好处</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-04T23:47:51.000Z" itemprop="datePublished">2020-11-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/06/10/Unity-GUID-And-AssetBundle-Hash/" class="title">Unity GUID和AssetBundle Hash</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-06-10T17:27:49.000Z" itemprop="datePublished">2020-06-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/blog/2020/05/25/Using-IDisposable-And-Finalizer/" class="title">C#中using, IDisposable, 析构函数的用法</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-05-25T11:24:55.000Z" itemprop="datePublished">2020-05-25</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Create-custom-awaitable-types" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Create-Custom-Awaitable-Types
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/blog/2020/11/15/Create-custom-awaitable-types/" class="article-date">
+	  <time datetime="2020-11-15T13:36:39.629Z" itemprop="datePublished">2020-11-15</time>
+	</a>
+</span>
+        
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/blog/2020/11/15/Create-custom-awaitable-types/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>title: 创建自己的类型，实现await关键字的<br>date: 2020-11-15 20:09:53<br>tags:</p>
+<ul>
+<li>C#</li>
+<li>Unity</li>
+</ul>
+<p>前面的文章介绍了await/async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。</p>
+<h6 id="首先，为什么要自己实现awaitable的类呢？"><a href="#首先，为什么要自己实现awaitable的类呢？" class="headerlink" title="首先，为什么要自己实现awaitable的类呢？"></a>首先，为什么要自己实现awaitable的类呢？</h6><p>答案就是，我们需要自己控制异步代码的步进，就是Update。</p>
+<p>如果我们使用Task类，那么是没有办法控制它是怎么update的。游戏中我们经常需要实现的功能就是加速和减速，甚至是暂停。可是我们只想针对游戏逻辑中的一部分实现这些流程控制，而不是针对整个应用级别。这个时候通常来说我们需要自己写一个逻辑的Update入口，然后在这里处理逻辑的时间步进的计算。如果我们用Task来做，你是很难实现这样的功能的。</p>
+<p>另一个设计上的需求是（当然这个需求比较弱），对于一个比较复杂的异步逻辑，我们希望将它封装成一个类，传入相应的参数就行。如果我们用Task来做，最后的结果就是入口一个async Task<T>函数。那么结果可能是我们会有一个非常大的类，里面全部都是async Task<T>的函数，每个函数封装的是一个异步逻辑。其实这样也可以，但是不能体现出一段逻辑的整体性。因为大家都是async的函数，不能一眼看出来层级关系。</p>
+<p>好，那我们开始实现自己的类，我们叫它AwaitableTask。如果这时候我们写<code>await new AwaitableTask();</code>，我们会发现编译器告诉我们，这不是一个可以await的类型。那么什么样的类型是可以await的呢？</p>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#awaitable-expressions" target="_blank" rel="noopener">首先贴上文档</a></p>
+<ol>
+<li><p>类型的编译时类型是dynamic</p>
+</li>
+<li><p>类型实现一个GetAwaiter函数，这个函数<strong>没有形参</strong>，<strong>返回一个awaiter类型</strong>，而这个awaiter类型需要满足以下3个条件：</p>
+<ol>
+<li><p>awaiter实现<code>System.Runtime.CompilerServices.INotifyCompletion</code>接口</p>
+</li>
+<li><p>awaiter拥有一个可读的bool类型的IsComplete<strong>成员</strong>属性</p>
+</li>
+<li><p>awaiter拥有一个GetResult函数，没有形参，没有类型参数</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>又上面的要求可以看出，我们应该首先定义Awaiter类，然后再定义AwaitableTask类就行了。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AwaitableTask</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Update</span>(<span class="params"><span class="keyword">float</span> dt</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Awaiter <span class="title">GetAwaiter</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Awaiter();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">struct</span> Awaiter : INotifyCompletion &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnCompleted</span>(<span class="params">Action continuation</span>)</span> &#123;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">bool</span> IsCompleted =&gt; <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">object</span> <span class="title">GetResult</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我们做到这里就会发现，<code>await new AwaitableTask();</code>就已经不报错了。是不是很简单呢？</p>
+<p>那么问题来了。Awaiter应该怎么实现这几个函数呢？</p>
+<p>显然这里面有几个关键性的函数：</p>
+<ol>
+<li><p><code>public Awaiter GetAwaiter()</code></p>
+</li>
+<li><p><code>public void OnCompleted(Action continuation)</code></p>
+</li>
+<li><p><code>public object GetResult()</code></p>
+</li>
+</ol>
+<p>我们需要回顾前面文章里面贴的代码，C#编译器生成的代码来理解这几个函数有什么用。</p>
+<p><code>Console.WriteLine(&quot;Before delay&quot;);
+ awaiter = Task.Delay(TimeSpan.FromSeconds(3.0)).GetAwaiter();</code></p>
+<p>所以<code>await Task.Delay(...)</code>实际上被翻译成了<code>awaiter = Task.Delay(TimeSpan.FromSeconds(3.0)).GetAwaiter()</code>。因此当我们写下await xxxClass的时候，等价的调用的GetAwaiter。</p>
+<p>然后awaiter被传递给了builder，调用的函数是AwaitUnsafeOnCompleted。这里UnsafeOnCompleted实际上就是OnCompleted的unsafe版本。如果你的Task里面需要调用unsafe的代码，你就需要提供unsafe的版本。而AwaitOnCompleted里面会调用awaiter.OnCompleted(continuation)，这里的continuation其实就是stateMachine的MoveNext函数。也就是说在Task完成时，会调用MoveNext，而MoveNext就是我们进入我们异步逻辑的下一个状态。这里就和协程和IEnumerator是一样的了。</p>
+<p>最后就是GetResult。当我们的Task完成后，会调用GetResult来拿到这个Task的返回值。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">TaskAwaiter&lt;<span class="keyword">string</span>&gt; awaiter;</span><br><span class="line">      <span class="keyword">int</span> num2;</span><br><span class="line">      <span class="keyword">if</span> (num1 != <span class="number">0</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        awaiter = Program.DoSomethingAsync(<span class="number">99</span>).GetAwaiter(); <span class="comment">// 看这里</span></span><br><span class="line">        <span class="keyword">if</span> (!awaiter.IsCompleted)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">0</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;u__1 = awaiter;</span><br><span class="line">          Program.&lt;StartAsync&gt;d__1 stateMachine = <span class="keyword">this</span>;</span><br><span class="line">          <span class="keyword">this</span>.&lt;&gt;t__builder.AwaitUnsafeOnCompleted&lt;TaskAwaiter&lt;<span class="keyword">string</span>&gt;, Program.&lt;StartAsync&gt;d__1&gt;(<span class="keyword">ref</span> awaiter, <span class="keyword">ref</span> stateMachine); <span class="comment">// 看这里</span></span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        awaiter = <span class="keyword">this</span>.&lt;&gt;u__1;</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;u__1 = <span class="keyword">new</span> TaskAwaiter&lt;<span class="keyword">string</span>&gt;();</span><br><span class="line">        <span class="keyword">this</span>.&lt;&gt;<span class="number">1</span>__state = num2 = <span class="number">-1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.&lt;&gt;s__2 = awaiter.GetResult(); <span class="comment">// 看这里</span></span><br><span class="line">      <span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1 = <span class="keyword">this</span>.&lt;&gt;s__2;</span><br><span class="line">      <span class="keyword">this</span>.&lt;&gt;s__2 = (<span class="keyword">string</span>) <span class="literal">null</span>;</span><br><span class="line">      Console.WriteLine(<span class="keyword">this</span>.&lt;result&gt;<span class="number">5</span>__1);</span><br></pre></td></tr></table></figure>
+
+<p>现在代码其实已经很清晰了。编译器帮我们完成了什么呢？</p>
+<ol>
+<li><p>编译器帮我们生成了状态机</p>
+</li>
+<li><p>编译器帮我们生成了一套框架代码，它会在builder里面将continuation传给我们的代码，以便在Task完成时能够调用到MoveNext</p>
+</li>
+<li><p>编译器帮我们生成了返回值逻辑，它从GetResult里面拿到返回值，最后作为async函数的返回值，最后被await拿到。</p>
+</li>
+</ol>
+<p>那我们需要做什么呢？</p>
+<ol>
+<li>编译器并不知道我们的Task什么时候完成，因此要求我们提供IsCompleted接口。因此我们需要在这个接口正确返回Task的运行状态。</li>
+<li>编译器生成的代码并没有替我们调用MoveNext，而是把它回传给我们了，需要我们在完成之后调用MoveNext，保证状态机的正确前进。</li>
+<li>编译器不知道我们的返回值怎么拿到，因此需要我们实现GetResult。</li>
+</ol>
+<p>知道了这些，我们的AwaitableTask是不是很好写了呢？在Update里面处理逻辑，当逻辑处理完了之后，awaiter需要能告知外面IsCompleted返回true。并且我们需要有一个task的调度器负责Update所有task，并且在完成之后设置状态，并且调用continuation。最后，我们需要实现GetResult。</p>
+<p>下面贴上我的最终实现。更详细的代码请移步我们<a href="https://github.com/wkzhou1988/Awaitable" target="_blank" rel="noopener">仓库</a>。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">// 我们希望去继承这个类，在子类中实现各种逻辑。</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">AwaitableTask</span> : <span class="title">ITask</span> &#123;</span><br><span class="line">       <span class="keyword">protected</span> <span class="keyword">bool</span> _isInQueue = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">bool</span> IsDestroyed &#123; <span class="keyword">get</span>; <span class="keyword">protected</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">bool</span> IsCompleted &#123; <span class="keyword">get</span>; <span class="keyword">protected</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">bool</span> IsStarted &#123; <span class="keyword">get</span>; <span class="keyword">protected</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">private</span> Action Continuation &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 用来捕捉执行过程中的异常信息</span></span><br><span class="line">       <span class="keyword">public</span> ExceptionDispatchInfo ExceptionDispatchInfo &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">bool</span> IsCancelled &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 在任务开始前，我们希望能够自定义一些逻辑</span></span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">OnStart</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Start</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           IsStarted = <span class="literal">true</span>;</span><br><span class="line">           OnStart();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 对于非泛型的任务，返回null即可。</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">object</span> <span class="title">GetResult</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 每个子类实现Update来处理逻辑。</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Update</span>(<span class="params"><span class="keyword">float</span> dt</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 在调用await之后，任务就会进入队列，并开始Update。因此</span></span><br><span class="line">       <span class="comment">// 在这里我们希望能够在执行前自定义一些逻辑</span></span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">BeforeRun</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 由于一个task是可以被await多次的（对于已经完成的task，await直接返回result），</span></span><br><span class="line">       <span class="comment">// 这里需要防止被多次加入队列</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> Awaiter <span class="title">GetAwaiter</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (!_isInQueue) &#123;</span><br><span class="line">               BeforeRun();</span><br><span class="line">               _isInQueue = <span class="literal">true</span>;</span><br><span class="line">               AwaitableTaskQueue.Instance.Add(<span class="keyword">this</span>);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> Awaiter(<span class="keyword">this</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 在完成前执行一些逻辑</span></span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">OnComplete</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 完成任务，同时调用MoveNext（continuation）</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Complete</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           OnComplete();</span><br><span class="line">           Continuation?.Invoke();</span><br><span class="line">           IsDestroyed = <span class="literal">true</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">OnCancel</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 取消之后也要调用continuation</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           IsCancelled = <span class="literal">true</span>;</span><br><span class="line">           OnCancel();</span><br><span class="line">           Continuation?.Invoke();</span><br><span class="line">           IsDestroyed = <span class="literal">true</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">struct</span> Awaiter : INotifyCompletion &#123;</span><br><span class="line">           <span class="keyword">private</span> AwaitableTask _awaitableTask;</span><br><span class="line"></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="title">Awaiter</span>(<span class="params">AwaitableTask awaitableTask</span>)</span> &#123;</span><br><span class="line">               _awaitableTask = awaitableTask;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 将MovenNext传递给task</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnCompleted</span>(<span class="params">Action continuation</span>)</span> &#123;</span><br><span class="line">               _awaitableTask.Continuation = continuation;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">public</span> <span class="keyword">bool</span> IsCompleted =&gt; _awaitableTask.IsCompleted;</span><br><span class="line"></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">object</span> <span class="title">GetResult</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">               <span class="comment">// 对于在update里面捕捉到的异常，在这里重新扔出去，</span></span><br><span class="line">               <span class="comment">// 这样做能保证在await语句的地方能通过try..catch捕捉到task内部的异常。</span></span><br><span class="line">               <span class="keyword">if</span> (_awaitableTask.ExceptionDispatchInfo != <span class="literal">null</span>) &#123;</span><br><span class="line">                   _awaitableTask.ExceptionDispatchInfo.Throw();</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">return</span> _awaitableTask.GetResult();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 所有AwaitableTask都通过这个队列来更新，方便控制步进的速度等</span></span><br><span class="line">   public class AwaitableTaskQueue : MonoSingleton&lt;AwaitableTaskQueue&gt; &#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">private</span> LinkedList&lt;ITask&gt; _tasks = <span class="keyword">new</span> LinkedList&lt;ITask&gt;();</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Add</span>(<span class="params">ITask task</span>)</span> &#123;</span><br><span class="line">           _tasks.AddLast(task);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">public</span> <span class="keyword">bool</span> Empty =&gt; _tasks.Count == <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Update</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">           OnUpdate(Time.deltaTime, Time.unscaledDeltaTime);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnUpdate</span>(<span class="params"><span class="keyword">float</span> deltaTime, <span class="keyword">float</span> unscaleDeltaTime</span>)</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (_tasks.Count == <span class="number">0</span>) &#123;</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">var</span> cur = _tasks.First;</span><br><span class="line">           <span class="keyword">while</span> (cur != <span class="literal">null</span>) &#123;</span><br><span class="line">               <span class="keyword">var</span> next = cur.Next;</span><br><span class="line">               <span class="keyword">var</span> task = cur.Value;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   <span class="keyword">if</span> (task.IsDestroyed) &#123;</span><br><span class="line">                       _tasks.Remove(cur);</span><br><span class="line">                   &#125;</span><br><span class="line">                   <span class="keyword">else</span> &#123;</span><br><span class="line">                       <span class="keyword">if</span> (!task.IsStarted) task.Start();</span><br><span class="line"></span><br><span class="line">                       <span class="keyword">if</span> (task.IsCompleted) &#123;</span><br><span class="line">                           _tasks.Remove(cur);</span><br><span class="line">                           task.Complete();</span><br><span class="line">                       &#125;</span><br><span class="line">                       <span class="keyword">else</span> &#123;</span><br><span class="line">                           task.Update(deltaTime);</span><br><span class="line">                       &#125;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">                   _tasks.Remove(cur);</span><br><span class="line">                   <span class="comment">// 捕捉异常信息，然后传递给Task</span></span><br><span class="line">                   task.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);</span><br><span class="line">                   task.Cancel();</span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               cur = next;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h6 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h6><p>这一套设计主要解决的问题是：</p>
+<ol>
+<li>通过使用await，解决的异步逻辑写起来繁琐，可读性差的问题，在游戏开发中有大量的异步逻辑的地方能极大的提高效率（毕竟状态机的代码不需要写了）</li>
+<li>逻辑中的Task抽象可以完全由自己的代码控制，可以加速减速暂停，也可以取消删除，也可以统计数量，等等。</li>
+</ol>
+<p>下一篇，我来介绍一下在项目中如何使用这套设计来简化异步逻辑代码。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/" title="Create-Custom-Awaitable-Types" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/wkzhou1988" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://www.gravatar.com/avatar/2f92b07170538259ce8e9ce79699b0f7?s=128" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/wkzhou1988" target="_blank"><span class="text-dark">Vincent</span><small class="ml-1x">Game Developer in Unity</small></a></h3>
+        <div>游戏开发路上慢慢积累</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/blog/2020/11/11/inside-await-and-async/" title="深入Await和async"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/wkzhou1988" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="/blog/null" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/blog/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2020 Wenkan
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/blog/js/plugin.min.js"></script>
+
+
+<script src="/blog/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/blog/',
+        CONTENT_URL: '/blog/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/blog/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
