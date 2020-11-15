@@ -17,17 +17,19 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Create-Custom-Awaitable-Types | Blog</title>
-  <meta name="description" content="title: 创建自己的类型，实现await关键字的date: 2020-11-15 20:09:53tags:  C# Unity  前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有">
+  <title>创建自己的类型，实现Await关键字的 | Blog</title>
+  <meta name="description" content="前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有办法控制它是怎么update的。游戏中我们经常需要实现的功能就是加速和减速，甚至是暂停。可是我们只想针对游戏逻辑中的一部分实现这些流程控">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Create-Custom-Awaitable-Types">
+<meta property="og:title" content="创建自己的类型，实现Await关键字的">
 <meta property="og:url" content="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/index.html">
 <meta property="og:site_name" content="一枚开发的笔记">
-<meta property="og:description" content="title: 创建自己的类型，实现await关键字的date: 2020-11-15 20:09:53tags:  C# Unity  前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有">
+<meta property="og:description" content="前面的文章介绍了await&#x2F;async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。 首先，为什么要自己实现awaitable的类呢？答案就是，我们需要自己控制异步代码的步进，就是Update。 如果我们使用Task类，那么是没有办法控制它是怎么update的。游戏中我们经常需要实现的功能就是加速和减速，甚至是暂停。可是我们只想针对游戏逻辑中的一部分实现这些流程控">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-11-15T13:36:39.629Z">
-<meta property="article:modified_time" content="2020-11-15T13:36:39.629Z">
+<meta property="article:published_time" content="2020-11-15T20:09:53.000Z">
+<meta property="article:modified_time" content="2020-11-15T13:43:58.468Z">
 <meta property="article:author" content="Wenkan">
+<meta property="article:tag" content="Unity">
+<meta property="article:tag" content="C#">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
   <link rel="canonical" href="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/index.html">
@@ -201,7 +203,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C#</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Unity/" rel="tag">Unity</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C#</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Unity/" rel="tag">Unity</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -239,10 +241,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/blog/2020/11/15/Create-custom-awaitable-types/" class="title">Create-Custom-Awaitable-Types</a>
+                <a href="/blog/2020/11/15/Create-custom-awaitable-types/" class="title">创建自己的类型，实现Await关键字的</a>
               </p>
               <p class="item-date">
-                <time datetime="2020-11-15T13:36:39.629Z" itemprop="datePublished">2020-11-15</time>
+                <time datetime="2020-11-15T20:09:53.000Z" itemprop="datePublished">2020-11-15</time>
               </p>
             </div>
           </li>
@@ -327,7 +329,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Create-Custom-Awaitable-Types
+      创建自己的类型，实现Await关键字的
     </h1>
   
 
@@ -336,11 +338,16 @@
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
 	<a href="/blog/2020/11/15/Create-custom-awaitable-types/" class="article-date">
-	  <time datetime="2020-11-15T13:36:39.629Z" itemprop="datePublished">2020-11-15</time>
+	  <time datetime="2020-11-15T20:09:53.000Z" itemprop="datePublished">2020-11-15</time>
 	</a>
 </span>
         
         
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/blog/tags/C/" rel="tag">C#</a>, <a class="article-tag-link" href="/blog/tags/Unity/" rel="tag">Unity</a>
+  </span>
+
 
         
 
@@ -350,12 +357,7 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>title: 创建自己的类型，实现await关键字的<br>date: 2020-11-15 20:09:53<br>tags:</p>
-<ul>
-<li>C#</li>
-<li>Unity</li>
-</ul>
-<p>前面的文章介绍了await/async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。</p>
+        <p>前面的文章介绍了await/async的实现原理和用法。这篇文章来介绍如何写出自己的基类来实现await关键字的功能。</p>
 <h6 id="首先，为什么要自己实现awaitable的类呢？"><a href="#首先，为什么要自己实现awaitable的类呢？" class="headerlink" title="首先，为什么要自己实现awaitable的类呢？"></a>首先，为什么要自己实现awaitable的类呢？</h6><p>答案就是，我们需要自己控制异步代码的步进，就是Update。</p>
 <p>如果我们使用Task类，那么是没有办法控制它是怎么update的。游戏中我们经常需要实现的功能就是加速和减速，甚至是暂停。可是我们只想针对游戏逻辑中的一部分实现这些流程控制，而不是针对整个应用级别。这个时候通常来说我们需要自己写一个逻辑的Update入口，然后在这里处理逻辑的时间步进的计算。如果我们用Task来做，你是很难实现这样的功能的。</p>
 <p>另一个设计上的需求是（当然这个需求比较弱），对于一个比较复杂的异步逻辑，我们希望将它封装成一个类，传入相应的参数就行。如果我们用Task来做，最后的结果就是入口一个async Task<T>函数。那么结果可能是我们会有一个非常大的类，里面全部都是async Task<T>的函数，每个函数封装的是一个异步逻辑。其实这样也可以，但是不能体现出一段逻辑的整体性。因为大家都是async的函数，不能一眼看出来层级关系。</p>
@@ -431,7 +433,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/" title="Create-Custom-Awaitable-Types" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/</a>
+      <a href="http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/" title="创建自己的类型，实现Await关键字的" target="_blank" rel="external">http://wkzhou1988.github.io/blog/2020/11/15/Create-custom-awaitable-types/</a>
     </li>
     
     <li class="post-copyright-license">
